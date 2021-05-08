@@ -1,0 +1,40 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run C",
+            "type": "shell",
+            "command": "cls && cd ${fileDirname} && gcc ${fileBasename} -o ${fileBasenameNoExtension} && ${fileBasenameNoExtension}",
+        },
+        {
+            "label": "Run C++",
+            "type": "shell",
+            "command": "cls && cd ${fileDirname} && g++ ${fileBasename} -o ${fileBasenameNoExtension} && ${fileBasenameNoExtension}",
+        },
+        {
+            "label": "Run Java",
+            "type": "shell",
+            "command": "cls && cd ${fileDirname} && javac ${fileBasename} && java ${fileBasenameNoExtension}",
+        },
+        {
+            "label": "Run Python",
+            "type": "shell",
+            "command": "cls && cd ${fileDirname} && python ${fileBasename}",
+        },
+        {
+            "label": "Run XML",
+            "type": "shell",
+            "command": "cls && cd ${fileDirname} && pyuic5 -x ${fileBasename} -o ${fileBasenameNoExtension}.py && python ${fileBasenameNoExtension}.py",
+        },
+        {
+            "label": "Run Javascript",
+            "type": "shell",
+            "command": "cls && cd ${fileDirname} && node ${fileBasename}",
+        },
+    ],
+    "presentation": {
+        "echo": false,
+        "clear": true,
+        "focus": true,
+    }
+}
