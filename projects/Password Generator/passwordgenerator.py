@@ -6,6 +6,8 @@ from pyperclip import copy, paste
 from random import sample, choice, shuffle
 
 
+# MainWindow
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -16,6 +18,8 @@ class MainWindow(QMainWindow):
         self.check.clicked.connect(self.passcheck)
         self.paste.clicked.connect(self.passpaste)
         self.show()
+
+    # Method to generate random password
 
     def passgenerate(self):
         try:
@@ -47,6 +51,8 @@ class MainWindow(QMainWindow):
         except:
             pass
 
+    # Method to check the strength of the password
+
     def passcheck(self):
         try:
             password = self.lineEdit.text()
@@ -76,11 +82,15 @@ class MainWindow(QMainWindow):
         except:
             pass
 
+    # Method to Copy the Generated Password
+
     def passcopy(self):
         try:
             copy(self.res1.text())
         except:
             pass
+
+    # Method to Paste the Generated Password
 
     def passpaste(self):
         try:
@@ -88,6 +98,8 @@ class MainWindow(QMainWindow):
         except:
             pass
 
+
+# program starts from here...
 
 app = QApplication(argv)
 mainwindow = MainWindow()
