@@ -24,7 +24,7 @@
         {
             "label": "Run XML",
             "type": "shell",
-            "command": "cls && cd ${fileDirname} && pyuic5 -x ${fileBasename} -o ${fileBasenameNoExtension}.py && python ${fileBasenameNoExtension}.py",
+            "command": "cls && cd ${fileDirname} && pyuic5 -x ${fileBasename} -o ${fileBasenameNoExtension}.py",
         },
         {
             "label": "Run Javascript",

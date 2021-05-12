@@ -1,5 +1,7 @@
-let arr = [1, 2, 3, 4]
-for (let i of arr)
-{
-    console.log(i)
+user = {
+    name: "vilas",
+    email:"aed@gmail.com"
 }
+const { name, email } = user
+console.log(name)
+console.log(email)
