@@ -8,8 +8,6 @@ def bubble_sort(data, drawData, timeTick):
                 drawData(data, ['green' if x == j or x == j+1 else 'red' for x in range(len(data))] )
                 time.sleep(timeTick)
     drawData(data, ['green' for x in range(len(data))])
-    
-
 
 
 

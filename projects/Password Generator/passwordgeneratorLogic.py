@@ -17,6 +17,7 @@ class MainWindow(QMainWindow):
         self.copy.clicked.connect(self.passcopy)
         self.check.clicked.connect(self.passcheck)
         self.paste.clicked.connect(self.passpaste)
+
         self.show()
 
     # Method to generate random password

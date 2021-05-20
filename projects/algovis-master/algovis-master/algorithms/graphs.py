@@ -1,0 +1,295 @@
+import random
+import json
+from queue import Queue
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+from algorithms.algo import AlgoWidget
+
+# CONSTANTS
+NODE_COLOR = (0, 128, 255)
+EDGE_COLOR = (0, 0, 0)
+SELECT_COLOR = (234, 184, 4)
+SOURCE_COLOR = (1, 178, 137)
+TARGET_COLOR = SOURCE_COLOR
+IN_QUEUE_STACK_COLOR = (100, 100, 100)
+TEXT_COLOR = (0, 0, 0)
+
+MATRIX_WIDTH = 5
+MATRIX_HEIGHT = 5
+NODES_COUNT = 10
+MIN_MATRIX_WIDTH = 2
+MIN_MATRIX_HEIGHT = MIN_MATRIX_WIDTH
+MAX_MATRIX_WIDTH = 20
+MAX_MATRIX_HEIGHT = MAX_MATRIX_WIDTH
+MIN_NODES_COUNT = 3
+MAX_NODES_COUNT = 200
+NODE_PIXEL_WIDTH = 20
+NODE_PEN_PIXEL_WIDTH = 1
+EDGE_PEN_PIXEL_WIDTH = 3
+
+BFS_ALG = r"""
+BFS(start_node, goal_node) {
+ for(all nodes i) visited[i] = false;
+ queue.push(start_node);
+ visited[start_node] = true;
+ while(! queue.empty() ) {
+  node = queue.pop();
+  if(node == goal_node) {
+   return true;
+  }
+  foreach(child in expand(node)) {
+   if(visited[child] == false) {
+    queue.push(child);
+    visited[child] = true;
+   }
+  }
+ }
+ return false;
+}
+"""
+DFS_ALG = r"""
+DFS(G,v)
+    Stack S := {};
+    for each vertex u, set visited[u] := false;
+    push S, v;
+    while (S is not empty) do
+    u := pop S;
+    if (not visited[u]) then
+        visited[u] := true;
+        for each unvisited neighbour w of u
+            push S, w;
+    end if
+    end while
+END DFS()
+"""
+
+
+class GraphNode(QtWidgets.QGraphicsEllipseItem):
+    def __init__(self, i, j, parent=None):
+        super().__init__(parent)
+        self.index = (i, j)
+        self.used = False
+        self.neighbours_offsets = []
+        self.edges_offsets = []
+        self.id = 0
+        self.visited = False
+
+    def __str__(self):
+        return str((self.index, self.id))
+
+
+class GraphEdge(QtWidgets.QGraphicsLineItem):
+    def __init__(self, first_nghbr, second_nghbr, parent=None):
+        super().__init__(parent)
+        self.first_nghbr = first_nghbr
+        self.second_nghbr = second_nghbr
+
+
+class GraphWidget(AlgoWidget):
+    def __init__(self, width, height, max_nodes, parent=None):
+        super().__init__(parent)
+        self.matrix_width = width
+        self.matrix_height = height
+        self.nodes_matrix = [[GraphNode(i, j) for j in range(width)] for i in range(height)]
+        if max_nodes <= width * height:
+            self.max_nodes_count = max_nodes
+        else:
+            self.max_nodes_count = width * height
+        first_idx = (random.randint(0, height - 1), random.randint(0, width - 1))
+        self.nodes_matrix[first_idx[0]][first_idx[1]].used = True
+        self.nodes_list = [self.nodes_matrix[first_idx[0]][first_idx[1]]]
+        self.edges_list = []
+        self.current_nodes_list_offset = 0
+        self.neighbours_idxs = [(-1, 0), (0, 1), (1, 0), (0, -1), (-1, 1), (1, 1), (1, -1), (-1, -1)]
+        self.init_graph()
+        self.source_node = self.nodes_list[0]
+        self.target_node = self.nodes_list[-1]
+        node_pen = QtGui.QPen()
+        node_pen.setWidth(NODE_PEN_PIXEL_WIDTH)
+        node_pen.setColor(QtGui.QColor(*NODE_COLOR))
+        for id, node in enumerate(self.nodes_list, 0):
+            node.id = id
+            node.setBrush(QtGui.QColor(*NODE_COLOR))
+            node.setPen(node_pen)
+            self.graphic_scene.addItem(node)
+            text = QtWidgets.QGraphicsTextItem(str(id), node)
+            text.setDefaultTextColor(QtGui.QColor(*TEXT_COLOR))
+        edge_pen = QtGui.QPen()
+        edge_pen.setWidth(EDGE_PEN_PIXEL_WIDTH)
+        edge_pen.setColor(QtGui.QColor(*EDGE_COLOR))
+        for edge in self.edges_list:
+            edge.setPen(edge_pen)
+            self.graphic_scene.addItem(edge)
+        self.set_states()
+        self.set_by_states()
+        self.states_slider.setMaximum(self.max_state)
+        self.states_slider.setMinimum(0)
+        self.paintEvent = self.update_graph_scene
+        self.resizeEvent = self.update_graph_scene
+
+    def init_graph(self):
+        current_node = self.nodes_list[self.current_nodes_list_offset]
+        current_node_idx = current_node.index
+        rnd_neighbours_flg = [bool(random.randint(0, 1)) for _ in range(len(self.neighbours_idxs))]
+        if not any(rnd_neighbours_flg):
+            rnd_neighbours_flg[random.randint(0, len(rnd_neighbours_flg) - 1)] = True
+        for idx, neighbour_flg in enumerate(rnd_neighbours_flg, 0):
+            if len(self.nodes_list) < self.max_nodes_count:
+                neighbour_index = (current_node_idx[0] + self.neighbours_idxs[idx][0],
+                                   current_node_idx[1] + self.neighbours_idxs[idx][1])
+                if neighbour_index[0] < self.matrix_height and neighbour_index[0] >= 0 and \
+                        neighbour_index[1] < self.matrix_width and neighbour_index[1] >= 0:
+                    current_neighbour = self.nodes_matrix[neighbour_index[0]][neighbour_index[1]]
+                    if neighbour_flg and not current_neighbour.used:
+                        current_neighbour.used = True
+                        current_neighbour.neighbours_offsets.append(self.current_nodes_list_offset)
+                        self.nodes_list.append(current_neighbour)
+                        current_node.neighbours_offsets.append(len(self.nodes_list) - 1)
+                        self.edges_list.append(GraphEdge(self.current_nodes_list_offset, len(self.nodes_list) - 1))
+                        current_neighbour.edges_offsets.append(len(self.edges_list) - 1)
+                        current_node.edges_offsets.append(len(self.edges_list) - 1)
+
+        if len(self.nodes_list) < self.max_nodes_count:
+            if len(self.nodes_list) - 1 > self.current_nodes_list_offset:
+                self.current_nodes_list_offset += 1
+            else:
+                self.current_nodes_list_offset = 0
+            self.init_graph()
+
+    def update_graph_scene(self, event):
+        # node_width = min(self.graphic_view.width(), self.graphic_view.height()) / self.matrix_width
+        node_width = NODE_PIXEL_WIDTH
+        distance = node_width
+        for node in self.nodes_list:
+            x = node.index[0] * (node_width + distance)
+            y = node.index[1] * (node_width + distance)
+            node.setRect(x, y, node_width, node_width)
+            node.setZValue(1)
+            current_font = node.childItems()[0].font()
+            current_font.setPixelSize(node_width / 2.5)
+            text_width = node.childItems()[0].boundingRect().width()
+            text_height = node.childItems()[0].boundingRect().height()
+            node.childItems()[0].setFont(current_font)
+            node.childItems()[0].setPos(x + (node_width - text_width) / 2, y + (node_width - text_height) / 2)
+        for edge in self.edges_list:
+            first_node = self.nodes_list[edge.first_nghbr]
+            second_node = self.nodes_list[edge.second_nghbr]
+            frst_pnt_x = first_node.rect().x() + first_node.rect().width() / 2
+            frst_pnt_y = first_node.rect().y() + first_node.rect().height() / 2
+            scnd_pnt_x = second_node.rect().x() + second_node.rect().width() / 2
+            scnd_pnt_y = second_node.rect().y() + second_node.rect().height() / 2
+            edge.setLine(frst_pnt_x, frst_pnt_y, scnd_pnt_x, scnd_pnt_y)
+        new_rect = self.graphic_scene.itemsBoundingRect()
+        border = 0.1 * min(new_rect.width(), new_rect.height())
+        new_rect.setRect(new_rect.x() - border, new_rect.y() - border,
+                         new_rect.width() + border * 2, new_rect.height() + border * 2)
+        self.graphic_scene.setSceneRect(new_rect)
+        self.graphic_view.fitInView(new_rect, QtCore.Qt.KeepAspectRatio)
+
+    def set_by_states(self):
+        for i, node_state in enumerate(self.nodes_states_list[self.current_state], 0):
+            node_pen = self.nodes_list[i].pen()
+            node_pen.setColor(QtGui.QColor(*node_state["color"]))
+            self.nodes_list[i].setBrush(QtGui.QColor(*node_state["color"]))
+            self.nodes_list[i].setPen(node_pen)
+        for i, edge_state in enumerate(self.edges_states_list[self.current_state], 0):
+            edge_pen = self.edges_list[i].pen()
+            edge_pen.setColor(QtGui.QColor(*edge_state["color"]))
+            self.edges_list[i].setPen(edge_pen)
+        self.update_graph_scene(None)
+
+    @staticmethod
+    def _get_edge_idx(src, dst):
+        for i, neighbour in enumerate(src.neighbours_offsets, 0):
+            if neighbour == dst.id:
+                return i
+
+
+class BFS(GraphWidget):
+    def __init__(self, width, height, max_nodes, parent=None):
+        super().__init__(width, height, max_nodes, parent)
+        self.setWindowTitle(self.tr("Breadth-first search"))
+        self.set_description(self.tr(
+            """
+        <b>Breadth-first search</b> (<b>BFS</b>) is an algorithm for traversing or searching tree \
+        or graph data structures. It starts at the tree root (or some arbitrary node \
+        of a graph, sometimes referred to as a 'search key') and explores the neighbor \
+        nodes first, before moving to the next level neighbours.
+        BFS and its application in finding connected components of graphs were invented in \
+        1945 by Michael Burke and Konrad Zuse, in his (rejected) Ph.D. thesis on the Plankalkul \
+        programming language, but this was not published until 1972. It was reinvented in 1959 \
+        by E. F. Moore, who used it to find the shortest path out of a maze, and discovered \
+        independently by C. Y. Lee as a wire routing algorithm (published 1961).
+        """), BFS_ALG)
+
+    def set_states(self):
+        self.nodes_states_list = [[{"color": NODE_COLOR} for _ in self.nodes_list]]
+        self.edges_states_list = [[{"color": EDGE_COLOR} for _ in self.edges_list]]
+        queue = Queue()
+        self.source_node.visited = True
+        queue.put_nowait((self.source_node, None))
+        self.nodes_states_list[-1][self.source_node.id]["color"] = SOURCE_COLOR
+        self.nodes_states_list[-1][self.target_node.id]["color"] = TARGET_COLOR
+        while not queue.empty():
+            node, prev_node = queue.get_nowait()
+            self.nodes_states_list.append(json.loads(json.dumps(self.nodes_states_list[-1])))
+            self.nodes_states_list[-1][node.id]["color"] = SELECT_COLOR
+            self.edges_states_list.append(json.loads(json.dumps(self.edges_states_list[-1])))
+            if prev_node is not None:
+                self.edges_states_list[-1][node.edges_offsets[self._get_edge_idx(node, prev_node)]][
+                    "color"] = SELECT_COLOR
+
+            if node == self.target_node:
+                break
+            for neighbour_idx in node.neighbours_offsets:
+                if not self.nodes_list[neighbour_idx].visited:
+                    queue.put_nowait((self.nodes_list[neighbour_idx], node))
+                    self.nodes_list[neighbour_idx].visited = True
+                    self.nodes_states_list.append(json.loads(json.dumps(self.nodes_states_list[-1])))
+                    self.edges_states_list.append(json.loads(json.dumps(self.edges_states_list[-1])))
+                    self.nodes_states_list[-1][neighbour_idx]["color"] = IN_QUEUE_STACK_COLOR
+                    self.edges_states_list[-1][node.edges_offsets[ \
+                        self._get_edge_idx(node, self.nodes_list[neighbour_idx])]]["color"] = IN_QUEUE_STACK_COLOR
+        self.max_state = len(self.nodes_states_list) - 1
+
+
+class DFS(GraphWidget):
+    def __init__(self, width, height, max_nodes, parent=None):
+        super().__init__(width, height, max_nodes, parent)
+        self.setWindowTitle(self.tr("Depth-first search"))
+        self.set_description(self.tr(
+            """
+        <b>Depth-first search</b> (<b>DFS</b>) is an algorithm for traversing or searching tree or graph data structures. \
+        One starts at the root (selecting some arbitrary node as the root in the case of a graph) and explores \
+        as far as possible along each branch before backtracking.
+        A version of depth-first search was investigated in the 19th century by French mathematician \
+        Charles Pierre Tremaux as a strategy for solving mazes.
+        """), DFS_ALG)
+
+    def set_states(self):
+        self.nodes_states_list = [[{"color": NODE_COLOR} for _ in self.nodes_list]]
+        self.edges_states_list = [[{"color": EDGE_COLOR} for _ in self.edges_list]]
+        stack = []
+        stack.append((self.source_node, None))
+        self.nodes_states_list[-1][self.source_node.id]["color"] = SOURCE_COLOR
+        self.nodes_states_list[-1][self.target_node.id]["color"] = TARGET_COLOR
+        while len(stack) > 0:
+            node, prev_node = stack.pop()
+            node.visited = True
+            self.nodes_states_list.append(json.loads(json.dumps(self.nodes_states_list[-1])))
+            self.nodes_states_list[-1][node.id]["color"] = SELECT_COLOR
+            self.edges_states_list.append(json.loads(json.dumps(self.edges_states_list[-1])))
+            if prev_node is not None:
+                self.edges_states_list[-1][node.edges_offsets[self._get_edge_idx(node, prev_node)]][
+                    "color"] = SELECT_COLOR
+            if node == self.target_node:
+                break
+            for neighbour_idx in node.neighbours_offsets:
+                if not self.nodes_list[neighbour_idx].visited:
+                    stack.append((self.nodes_list[neighbour_idx], node))
+                    self.nodes_states_list.append(json.loads(json.dumps(self.nodes_states_list[-1])))
+                    self.edges_states_list.append(json.loads(json.dumps(self.edges_states_list[-1])))
+                    self.nodes_states_list[-1][neighbour_idx]["color"] = IN_QUEUE_STACK_COLOR
+                    self.edges_states_list[-1][node.edges_offsets[ \
+                        self._get_edge_idx(node, self.nodes_list[neighbour_idx])]]["color"] = IN_QUEUE_STACK_COLOR
+        self.max_state = len(self.nodes_states_list) - 1
