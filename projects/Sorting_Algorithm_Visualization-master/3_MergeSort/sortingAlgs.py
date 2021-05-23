@@ -33,7 +33,7 @@ def drawData(data, colorArray):
 
         canvas.create_rectangle(x0, y0, x1, y1, fill=colorArray[i])
         canvas.create_text(x0+2, y0, anchor=SW, text=str(data[i]))
-    
+
     root.update_idletasks()
 
 
@@ -56,13 +56,13 @@ def StartAlgorithm():
 
     if algMenu.get() == 'Quick Sort':
         quick_sort(data, 0, len(data)-1, drawData, speedScale.get())
-    
+
     elif algMenu.get() == 'Bubble Sort':
         bubble_sort(data, drawData, speedScale.get())
 
     elif algMenu.get() == 'Merge Sort':
         merge_sort(data, drawData, speedScale.get())
-    
+
     drawData(data, ['green' for x in range(len(data))])
 
 
@@ -97,4 +97,3 @@ maxEntry.grid(row=1, column=2, padx=5, pady=5)
 Button(UI_frame, text="Generate", command=Generate, bg='white').grid(row=1, column=3, padx=5, pady=5)
 
 root.mainloop()
-
