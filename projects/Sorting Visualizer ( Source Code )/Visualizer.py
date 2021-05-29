@@ -5,7 +5,6 @@ from random import sample, choices
 from sys import argv, exit
 from Algorithms import BubbleSort, InsertionSort, SelectionSort, MergeSort, QuickSort
 
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
