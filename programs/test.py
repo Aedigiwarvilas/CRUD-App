@@ -1,28 +1,35 @@
 def Merge(l,mid,h,arr):
-        i = j = k = 0
+    i,j,k=l,mid+1,l
+    temp = [0]*6
+    # Copy data to temp arrays L[] and R[]
+    while i <= mid and j <= h:
 
-        # Copy data to temp arrays L[] and R[]
-        while i <= mid and j <= h:
-
-            if arr[i] < arr[j]:
-                arr[k] = arr[i]
-                i += 1
-            else:
-                arr[k] = arr[j]
-                j += 1
-            k += 1
-
-
-        # Checking if any element was left
-        while i <= mid:
-            arr[k] = arr[i]
+        if arr[i] < arr[j]:
+            temp[k] = arr[i]
             i += 1
-            k += 1
-
-        while j <= h:
-            arr[k] = arr[j]
+        else:
+            temp[k] = arr[j]
             j += 1
-            k += 1
+        k += 1
+
+
+    # Checking if any element was left
+    while i <= mid:
+        temp[k] = arr[i]
+        i += 1
+        k += 1
+
+    while j <= h:
+        temp[k] = arr[j]
+        j += 1
+        k += 1
+
+    i=l
+    while i<=h:
+        arr[i]=temp[i]
+        i+=1
+
+
 
 # Merge Sort Algorithm
 def MergeSort(l,h,arr):

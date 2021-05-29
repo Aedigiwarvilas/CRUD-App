@@ -11,7 +11,7 @@ from random import sample, choice, shuffle
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        uic.loadUi("passwordgenerator.ui", self)
+        uic.loadUi("Interface.ui", self)
         self.L = [ascii_lowercase, ascii_uppercase, digits, punctuation]
         self.generate.clicked.connect(self.passgenerate)
         self.copy.clicked.connect(self.passcopy)
