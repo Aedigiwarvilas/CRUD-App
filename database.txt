@@ -1,0 +1,15 @@
+
+create database student;
+
+use student;
+
+CREATE TABLE `student` (
+  `ROLLNO` decimal(10,0) NOT NULL,
+  `FIRST_NAME` varchar(20) NOT NULL,
+  `LAST_NAME` varchar(20) NOT NULL,
+  `BRANCH` varchar(45) NOT NULL,
+  `DOB` varchar(45) NOT NULL,
+  `EMAIL` varchar(45) NOT NULL,
+  `MOB_NO` varchar(45) NOT NULL,
+  PRIMARY KEY (`ROLLNO`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

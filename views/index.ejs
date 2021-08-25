@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+  <title>Student Database Management</title>
+</head>
+
+<body>
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1">Welcome to Student Database Management System</span>
+    </div>
+  </nav>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-10 mx-auto">
+        <h3 class="text-center mt-3">Students Registered</h3>
+      </div>
+      <div class="col-2 mx-auto mt-3">
+        <a href="add_form.ejs" class="btn btn-primary">Add Student</a>
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="col mx-auto">
+
+        <table class="table table-primary my-4 shadow table-hover">
+          <thead>
+            <tr>
+              <th scope="col">ROLLNO</th>
+              <th scope="col">FIRST NAME</th>
+              <th scope="col">LAST NAME</th>
+              <th scope="col">BRANCH</th>
+              <th scope="col">DOB</th>
+              <th scope="col">EMAIL</th>
+              <th scope="col">MOBNO</th>
+
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
+            <% students.forEach((row)=>{ %>
+            <tr>
+              <td scope="row">
+                <%= row.ROLLNO %>
+              </td>
+              <td>
+                <%= row.FIRST_NAME %>
+              </td>
+              <td>
+                <%= row.LAST_NAME %>
+              </td>
+              <td>
+                <%= row.BRANCH %>
+              </td>
+              <td>
+                <%= row.DOB %>
+              </td>
+              <td>
+                <%= row.EMAIL %>
+              </td>
+              <td>
+                <%= row.MOB_NO %>
+              </td>
+              <td>
+                <form>
+                  <a href="edit_form.ejs/<%= row.ROLLNO %>" class="btn btn-primary btn-sm">Edit</a>
+                  <a href="/DeleteData/<%= row.ROLLNO %>" class="btn btn-danger btn-sm">Delete</a>
+                </form>
+              </td>
+            </tr>
+
+            <% }) %>
+
+
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous">
+  </script>
+</body>
+
+</html>
