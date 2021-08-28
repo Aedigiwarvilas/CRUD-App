@@ -11,10 +11,10 @@ app.use(bodyparser.urlencoded({
 app.use(bodyparser.json())
 
 const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "8897",
-    database: "vilas"
+     host: "bsf3gvdu26nv0wmw0sfd-mysql.services.clever-cloud.com",
+    user: "upl9bw5n76fry6xw",
+    password: "upl9bw5n76fry6xw",
+    database: "bsf3gvdu26nv0wmw0sfd"
 })
 db.connect()
 
