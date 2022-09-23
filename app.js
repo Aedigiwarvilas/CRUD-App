@@ -11,10 +11,10 @@ app.use(bodyparser.urlencoded({
 app.use(bodyparser.json())
 
 const db = mysql.createConnection({
-     host: "bsf3gvdu26nv0wmw0sfd-mysql.services.clever-cloud.com",
-    user: "upl9bw5n76fry6xw",
-    password: "upl9bw5n76fry6xw",
-    database: "bsf3gvdu26nv0wmw0sfd",
+    host: "localhost",
+    user: "root", // Enter your mysql username
+    password: "8897", // Enter your mysql password
+    database: "student", // Enter Database name 
     port : "3306"
 })
 db.connect()
@@ -70,4 +70,4 @@ app.get("/DeleteData/:id", (req, res) => {
     res.redirect("/")
 })
 
-app.listen(8080)
+app.listen(8080,()=>console.log("Server Running at Port 8080"))
